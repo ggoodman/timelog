@@ -1,6 +1,54 @@
+ul.refiner {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+ul.refiner li {
+  display: block;
+  position: relative;
+  width: 270px;
+  padding: 4px;
+  border: 1px solid #f5f5f5;
+}
+
+ul.refiner a.select {
+  display: block;
+  border-right: 1px solid #f5f5f5;
+  margin-right: 30px;
+}
+ul.refiner a.refine {
+  display: block;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  width: 9px;
+  height: 0;
+  margin: 4px;
+  padding: 0;
+  border-top: 9px solid transparent;
+  border-bottom: 9px solid transparent;
+
+  border-left: 9px solid black;
+  text-indent: -99999px;
+}
+
+#topbar {
+  position: fixed;
+  width: 314px;
+  left: 50%;
+  margin-left: -160px;
+  height: 30px;
+  top: 0;
+  z-index: 20;
+  padding: 3px;
+  background-color: black;
+}
+
 #toolbar {
   position: fixed;
-  top: 90px;
+  top: 126px;
   height: 36px;
   width: 320px;
 }
@@ -10,13 +58,12 @@
 body, html {
   margin: 0;
   padding: 0;
-  min-height: 100%;
-  background-color: black;
+  background-color: white;
 }
 
 #tracker {
   position: fixed;
-  top: 0;
+  top: 36px;
   height: 90px;
   width: 320px;
   text-align: center;
@@ -78,10 +125,9 @@ body, html {
 #pages {
   width: 320px;
   position: absolute;
-  top: 0px;
+  top: 36px;
   left: 50%;
   margin-left: -160px;
-  min-height: 100%;
   background-color: white;
 }
 #pages .page {
@@ -114,11 +160,11 @@ body, html {
 }
 
 #blocks .blocks .block {
+  margin: 2px;
   border: 1px solid #DDD;
   -webkit-border-radius: 3px;
   -moz-border-radius: 3px;
   border-radius: 3px;
-  padding: 4px 4px 0 4px;
   margin-bottom: 4px;
   background-color: white;
 }
@@ -127,8 +173,14 @@ body, html {
   -webkit-border-radius: 3px;
   -moz-border-radius: 3px;
   border-radius: 3px;
-  padding: 4px 4px 0 4px;
   margin-bottom: 4px;
+}
+
+#blocks .blocks .block>div {
+  padding: 4px 4px 0 4px;
+}
+
+#blocks .block .unallocated {
   background-color: #fFeFeF;
 }
 

@@ -1,11 +1,3 @@
-###
-Routes:
-  YYYY-MM-DD: date/view
-  YYYY-MM-DD@HH:mm block/view
-  YYYY-MM-DD?start=HH:mm&end=HH:mm block/edit
-
-###
-
 window.lumbar = 
   version: "0.0.1"
 
@@ -20,6 +12,7 @@ class lumbar.View extends Backbone.View
     options = _.extend {}, @, @model?.viewModel()
     console.log "lumbar.View.render", @
     $(@el).html CoffeeKup.render @template, options
+    @trigger "rendered", @
     @
 
 class lumbar.Page extends lumbar.View
