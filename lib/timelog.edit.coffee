@@ -5,7 +5,7 @@ lumbar.router.registerPage /^(\d\d\d\d-\d\d-\d\d)(?:@(\d\d:\d\d)|\?start=(\d\d:\
       "submit": "save"
     tagName: "div"
     template: ->      
-      form ".form-stacked", action: "##{@start.format('YYYY-MM-DD')}", ->
+      form ".form-stacked", method: "get", action: "##{@start.format('YYYY-MM-DD')}", ->
         fieldset ->
           legend "Clock your time"
           div ".clearfix", ->
@@ -88,7 +88,7 @@ lumbar.router.registerPage /^(\d\d\d\d-\d\d-\d\d)(?:@(\d\d:\d\d)|\?start=(\d\d:\
           $end.val(oldEnd)
         
         
-        
+        $el.focus()
 
     save: (e) ->
       date = @model.get("start").format("YYYY-MM-DD")
