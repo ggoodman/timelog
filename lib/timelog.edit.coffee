@@ -4,14 +4,14 @@ lumbar.router.registerPage /^(\d\d\d\d-\d\d-\d\d)(?:@(\d\d:\d\d)|\?start=(\d\d:\
       "click .cancel": "cancel"
       "click .save": "save"
     tagName: "div"
-    template: ->
+    template: ->      
       form ".form-stacked", ->
         fieldset ->
           legend "Clock your time"
           div ".clearfix", ->
             label "Title"
             div ".input", ->
-              input ".xlarge.title", name: "title", placeholder: "Path/of/activity", value: @title
+              input ".xlarge.title", name: "title", autocomplete: "off", placeholder: "Path/of/activity", value: @title
               span ".help-block", "The path of your activity helps structure your time."
           div ".clearfix", ->
             label "Description"
@@ -19,9 +19,9 @@ lumbar.router.registerPage /^(\d\d\d\d-\d\d-\d\d)(?:@(\d\d:\d\d)|\?start=(\d\d:\
               textarea ".xlarge", name: "description", placeholder: "Describe how you spent your time...", -> @description
           div ".clearfix", ->
             div ".input", div ".inline-inputs", ->
-              input ".mini", type: "time", name: "start", placeholder: "00:00", value: @start?.format("HH:mm")
+              select ".mini", type: "time", name: "start", ->
               span "to"
-              input ".mini", type: "time", name: "end", placeholder: "00:00", value: @end?.format("HH:mm")
+              select ".mini", type: "time", name: "end", ->
           div ".actions", ->
             a ".btn.primary.save", href: "##{@start.format('YYYY-MM-DD')}", -> "Save"
             span " "
@@ -62,29 +62,33 @@ lumbar.router.registerPage /^(\d\d\d\d-\d\d-\d\d)(?:@(\d\d:\d\d)|\?start=(\d\d:\
         
         $el.on "keyup", _.throttle search, 100
         
-        ###
-        @$("input.title").autocomplete
-          minLength: 0
-          source: (request, response) ->
-            console.log "Searching for", request
-            regex = new RegExp("^" + request.term + "([^\/]*)", "i")
-            titles = _(timelog.blocks.pluck("title")).chain()
-              .filter((title) -> title.match(regex) and title != request.term)
-              .map((title) -> title.match(regex)[0])
-              .unique()
-              .value()
-            console.log "Proposing", titles
-            response(titles)
-          select: (event, ui) ->
-            $el = $(@)
-            setTimeout(( ->
-              $el.autocomplete "search", ui.item.value + "/"
-            ), 200)
-            $el.val ui.item.value
-            event.preventDefault()
-            false
-          focus: (event, ui) -> false
-        ###
+        $start = @$("[name=start]")
+        $end = @$("[name=end]")
+        
+        start = @model.get("start") or moment().clearTime()
+        end = @model.get("end") or moment()
+        time = start.clone()
+        
+        console.log "start", start.toString(), "end", end.toString(), time.diff(end, "minutes")
+
+        while end.diff(time, "minutes") >= 0
+          $start.append($("<option>", value: time.format("HH:mm"), text: time.format("HH:mm")))
+          $end.append($("<option>", value: time.format("HH:mm"), text: time.format("HH:mm")))
+          time.add("minutes", 6)
+        
+        $end.val(time.subtract("minutes", 6).format("HH:mm"))
+
+        $start.on "change", ->
+          time = moment(start.format("YYYY-MM-DD") + " " + $start.val(), "YYYY-MM-DD HH:mm")
+          oldEnd = $end.val()
+          $end.empty()
+          while time.diff(end, "minutes") <= 0
+            $end.append($("<option>", value: time.format("HH:mm"), text: time.format("HH:mm")))
+            time.add("minutes", 6)
+          $end.val(oldEnd)
+        
+        
+        
 
     save: (e) ->
       date = @model.get("start").format("YYYY-MM-DD")
@@ -121,6 +125,3 @@ lumbar.router.registerPage /^(\d\d\d\d-\d\d-\d\d)(?:@(\d\d:\d\d)|\?start=(\d\d:\
         end: moment("#{date} #{end}", "YYYY-MM-DD HH:mm")
   show: -> $(view.el).fadeIn()
   hide: -> $(view.el).fadeOut()#{start}", "YYYY-MM-DD HH:mm")
-        end: moment("#{date} #{end}", "YYYY-MM-DD HH:mm")
-  show: -> $(view.el).fadeIn()
-  hide: -> $(view.el).fadeOut()
