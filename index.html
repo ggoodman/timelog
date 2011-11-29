@@ -2,6 +2,8 @@
 <html>
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta names="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta charset="utf-8">
     <title>Timelog</title>
     <link rel="stylesheet" href="style/bootstrap.css" />
@@ -18,10 +20,14 @@
     <script type="text/coffeescript" src="lib/timelog.date.coffee"></script>
     <script type="text/coffeescript" src="lib/timelog.edit.coffee"></script>
     <script type="text/coffeescript">
-      $ -> lumbar.router.start()
+      $ ->
+        lumbar.router.start()
     </script>
   </head>
   <body>
+    <div id="topbar">
+      <a class="btn" href="#">Today</a>
+    </div>
     <div id="pages"></div>
   </body>
 </html>
