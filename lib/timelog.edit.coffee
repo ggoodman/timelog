@@ -65,9 +65,9 @@ lumbar.router.registerPage /^(\d\d\d\d-\d\d-\d\d)(?:@(\d\d:\d\d)|\?start=(\d\d:\
         $start = @$("[name=start]")
         $end = @$("[name=end]")
         
-        start = @model.get("start") or moment().clearTime()
-        end = @model.get("end") or moment()
-        time = start.clone()
+        start = @model.get("start").clone() or moment().clearTime()
+        end = @model.get("end").clone() or moment()
+        time = start.clone().hours(7)
         
         console.log "start", start.toString(), "end", end.toString(), time.diff(end, "minutes")
 
