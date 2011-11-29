@@ -6,8 +6,12 @@ lumbar.router.registerPage /^(\d\d\d\d-\d\d-\d\d)?$/, "date", ->
       tomorrow = @date.clone().add("days", 1)
       a ".btn.prev.pull-left", href: "#" + yesterday.format("YYYY-MM-DD"), ->
         yesterday.format("DD MMM")
-      a ".btn.next.pull-right", href: "#" + tomorrow.format("YYYY-MM-DD"), ->
-        tomorrow.format("DD MMM")
+      if tomorrow.diff(moment().clearTime(), "days") <= 0
+        a ".btn.next.pull-right", href: "#" + tomorrow.format("YYYY-MM-DD"), ->
+          tomorrow.format("DD MMM")
+      else
+        button ".btn.next.pull-right.disabled", ->
+          tomorrow.format("DD MMM")
       h3 ->
         time @date.format("ddd DD MMM YYYY")
 
@@ -42,16 +46,22 @@ lumbar.router.registerPage /^(\d\d\d\d-\d\d-\d\d)?$/, "date", ->
   
   class TailEnd extends timelog.Block
     initialize: ->
-
       self = @
       self.set
         end: timelog.state.get("clock").clone()
-        start: timelog.blocks.last()?.get("end") or moment().clearTime()
+      @calculateStart()
       timelog.state.bind "change:clock", (state) ->
         self.set end: timelog.state.get("clock").clone()
-      timelog.day.bind "all", _.throttle ( (day) ->
-        self.set start: timelog.blocks.last()?.get("end") or moment().clearTime()
-      ), 100
+      timelog.day.bind "all", _.throttle(@calculateStart, 100)
+      
+    
+    calculateStart: =>
+      today = moment().clearTime()
+      last = timelog.blocks.last()?.get("end") or moment().clearTime()
+      
+      last = today unless today.isSameDateAs(last)
+      
+      @set start: last
 
   class Tracker extends lumbar.View
     tagName: "div"
@@ -81,6 +91,7 @@ lumbar.router.registerPage /^(\d\d\d\d-\d\d-\d\d)?$/, "date", ->
 
   #Return the public page interface
   prepare: (date) ->
-    timelog.state.set(date: moment(date, "YYYY-MM-DD")) if date?
+    date = if date? then moment(date, "YYYY-MM-DD") else moment().clearTime()
+    timelog.state.set(date: date)
   show: -> $(view.el).fadeIn()
   hide: -> $(view.el).fadeOut()
