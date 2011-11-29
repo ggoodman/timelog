@@ -2,28 +2,28 @@ lumbar.router.registerPage /^(\d\d\d\d-\d\d-\d\d)(?:@(\d\d:\d\d)|\?start=(\d\d:\
   class Form extends lumbar.Page
     events:
       "click .cancel": "cancel"
-      "click .save": "save"
+      "submit": "save"
     tagName: "div"
     template: ->      
-      form ".form-stacked", ->
+      form ".form-stacked", action: "##{@start.format('YYYY-MM-DD')}", ->
         fieldset ->
           legend "Clock your time"
           div ".clearfix", ->
             label "Title"
             div ".input", ->
-              input ".xlarge.title", name: "title", autocomplete: "off", placeholder: "Path/of/activity", value: @title
+              input ".xlarge.title", tabindex: 1, name: "title", autocomplete: "off", placeholder: "Path/of/activity", value: @title
               span ".help-block", "The path of your activity helps structure your time."
           div ".clearfix", ->
             label "Description"
             div ".input", ->
-              textarea ".xlarge", name: "description", placeholder: "Describe how you spent your time...", -> @description
+              textarea ".xlarge", tabindex: 2, name: "description", placeholder: "Describe how you spent your time...", -> @description
           div ".clearfix", ->
             div ".input", div ".inline-inputs", ->
-              select ".mini", type: "time", name: "start", ->
+              select ".mini", tabindex: 3, name: "start", ->
               span "to"
-              select ".mini", type: "time", name: "end", ->
+              select ".mini", tabindex: 4, name: "end", ->
           div ".actions", ->
-            a ".btn.primary.save", href: "##{@start.format('YYYY-MM-DD')}", -> "Save"
+            input ".btn.primary.save", type: "submit", -> "Save"
             span " "
             a ".btn.cancel", href: "##{@start.format('YYYY-MM-DD')}", -> "Cancel"
 
