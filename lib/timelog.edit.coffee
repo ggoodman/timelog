@@ -1,11 +1,11 @@
-lumbar.router.registerPage /^(\d\d\d\d-\d\d-\d\d)(?:@(\d\d:\d\d)|\?start=(\d\d:\d\d)&end=(\d\d:\d\d))$/, "edit", ->
+lumbar.router.registerPage /^(\d\d\d\d-\d\d-\d\d)(?:@(c\d+))$/, "edit", ->
   class Form extends lumbar.Page
     events:
       "click .cancel": "cancel"
-      "submit": "save"
+      "click .save": "save"
     tagName: "div"
     template: ->      
-      form ".form-stacked", method: "get", action: "##{@start.format('YYYY-MM-DD')}", ->
+      form ".form-stacked", ->
         fieldset ->
           legend "Clock your time"
           div ".clearfix", ->
@@ -23,15 +23,13 @@ lumbar.router.registerPage /^(\d\d\d\d-\d\d-\d\d)(?:@(\d\d:\d\d)|\?start=(\d\d:\
               span "to"
               select ".mini", tabindex: 4, name: "end", ->
           div ".actions", ->
-            input ".btn.primary.save", type: "submit", -> "Save"
+            a ".btn.primary.save", href: "##{@start.format('YYYY-MM-DD')}", -> "Save"
             span " "
             a ".btn.cancel", href: "##{@start.format('YYYY-MM-DD')}", -> "Cancel"
 
-    initialize: ->
-      $(@render().el).hide().appendTo("#pages")
-      @model.bind "all", _.throttle(@render, 100)
-      
-      @bind "rendered", =>
+    initialize: ->      
+      @bind "rendered", ->
+        console.log "HELLO"
         $el = @$("input.title")
         $ul = $("<ul>", class: "refiner").hide().insertAfter($el)
         
@@ -42,7 +40,7 @@ lumbar.router.registerPage /^(\d\d\d\d-\d\d-\d\d)(?:@(\d\d:\d\d)|\?start=(\d\d:\
           $ul.empty()
 
           regex = new RegExp("^" + $el.val() + "([^\/]*)", "i")
-          _(timelog.blocks.pluck("title")).chain()
+          _(timelog.entries.pluck("title")).chain()
             .filter((title) -> title.match(regex))
             .map((title) -> title.match(regex)[0])
             .unique()
@@ -65,18 +63,21 @@ lumbar.router.registerPage /^(\d\d\d\d-\d\d-\d\d)(?:@(\d\d:\d\d)|\?start=(\d\d:\
         $start = @$("[name=start]")
         $end = @$("[name=end]")
         
-        start = @model.get("start").clone() or moment().clearTime()
-        end = @model.get("end").clone() or moment()
-        time = start.clone().hours(7)
+        start = @model.getEarliestStart().nearestMinutes(6)
+        end = @model.getLatestEnd().nearestMinutes(6)
         
-        console.log "start", start.toString(), "end", end.toString(), time.diff(end, "minutes")
-
+        time = start.clone()
+        
         while end.diff(time, "minutes") >= 0
           $start.append($("<option>", value: time.format("HH:mm"), text: time.format("HH:mm")))
           $end.append($("<option>", value: time.format("HH:mm"), text: time.format("HH:mm")))
           time.add("minutes", 6)
         
-        $end.val(time.subtract("minutes", 6).format("HH:mm"))
+        defaultEnd = @model.get("end").clone()
+        defaultEnd = start.clone().add("hours", 1) unless @model.id
+          
+        $start.val(@model.get("start").format("HH:mm"))
+        $end.val(defaultEnd.format("HH:mm"))
 
         $start.on "change", ->
           time = moment(start.format("YYYY-MM-DD") + " " + $start.val(), "YYYY-MM-DD HH:mm")
@@ -89,6 +90,8 @@ lumbar.router.registerPage /^(\d\d\d\d-\d\d-\d\d)(?:@(\d\d:\d\d)|\?start=(\d\d:\
         
         
         $el.focus()
+      $(@render().el).hide().appendTo("#pages")
+      @model.bind "all", _.throttle(@render, 100)
 
     save: (e) ->
       date = @model.get("start").format("YYYY-MM-DD")
@@ -100,28 +103,20 @@ lumbar.router.registerPage /^(\d\d\d\d-\d\d-\d\d)(?:@(\d\d:\d\d)|\?start=(\d\d:\
       
       console.log "Saving", @model.toJSON()
       
-      if @model.id then timelog.blocks.get(@model.id).save @model.toJSON()
-      else timelog.blocks.create @model.toJSON()
+      if @model.id then timelog.entries.get(@model.id).save @model.toJSON()
+      else timelog.entries.create @model.toJSON()
 
-      e.preventDefault()
-
-      lumbar.router.navigate("#" + @model.get("start").format("YYYY-MM-DD"), true)
+      #e.preventDefault()
 
     cancel: ->
 
-
-
-  view = new Form(model: new timelog.Block)
+  view = new Form(model: timelog.day.last())
 
   # Return public interface of page
-  prepare: (date, id, start, end) ->
-    view.model.clear(silent: true)
-    if id
-      console.log "ID", timelog.blocks.get("#{date}@#{id}").toJSON()
-      view.model.set timelog.blocks.get("#{date}@#{id}").toJSON()
-    else
-      view.model.set
-        start: moment("#{date} #{start}", "YYYY-MM-DD HH:mm")
-        end: moment("#{date} #{end}", "YYYY-MM-DD HH:mm")
+  prepare: (date, cid) ->
+    if block = timelog.day.getByCid(cid)
+      console.log "BLOCK", block
+      view = new Form(model: block)
+    
   show: -> $(view.el).fadeIn()
   hide: -> $(view.el).fadeOut()#{start}", "YYYY-MM-DD HH:mm")

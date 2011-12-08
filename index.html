@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="style/bootstrap.css" />
     <link rel="stylesheet" href="style/timelog.css" />
     <script type="text/javascript" src="lib/jquery.js"></script>
+    <script type="text/javascript" src="lib/sprintf.js"></script>
     <script type="text/javascript" src="lib/coffeekup.js"></script>
     <script type="text/javascript" src="lib/underscore.js"></script>
     <script type="text/javascript" src="lib/backbone.js"></script>
@@ -18,10 +19,10 @@
     <script type="text/coffeescript" src="lib/lumbar.coffee"></script>
     <script type="text/coffeescript" src="lib/timelog.coffee"></script>
     <script type="text/coffeescript" src="lib/timelog.date.coffee"></script>
+    <script type="text/coffeescript" src="lib/timelog.day.coffee"></script>
     <script type="text/coffeescript" src="lib/timelog.edit.coffee"></script>
     <script type="text/coffeescript">
-      $ ->
-        lumbar.router.start()
+      $ -> timelog.start()
     </script>
   </head>
   <body>

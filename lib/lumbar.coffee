@@ -1,5 +1,41 @@
+###
+View
+
+###
+
+
 window.lumbar = 
   version: "0.0.1"
+  start: -> lumbar.root.render()
+
+class lumbar.View
+  fragment: "<div>"
+  template: ->
+    
+  attach: (mountPoint, childView) -> @children[mountPoint] = childView
+    
+  getViewModel: -> _.extend {}, @model?.viewModel()
+    
+  render: ->
+    @el.html CoffeeKup.render @template, @getViewModel()
+    
+    for mountPoint, childView of @children
+      $(mountPoint, @el).clear().append $(childView.render().el).contents()
+    
+    @trigger "rendered", @
+  
+  initialize: ->
+    
+  constructor: ->
+    @children? or @children = {}
+    @el = $(@fragment)
+    @initialize(arguments...)
+
+lumbar.root = new class extends lumbar.View
+  fragment: "body"
+  template: ->
+    div "#wrapper", ->
+      div "#pages", ->
 
 class lumbar.Model extends Backbone.Model
   viewModel: => _.extend {}, if _.isFunction(@expose) then @expose() else @toJSON()
@@ -10,9 +46,8 @@ class lumbar.View extends Backbone.View
   template: ->
   render: =>
     options = _.extend {}, @, @model?.viewModel()
-    console.log "lumbar.View.render", @
     $(@el).html CoffeeKup.render @template, options
-    @trigger "rendered", @
+    @trigger "rendered"
     @
 
 class lumbar.Page extends lumbar.View
@@ -29,8 +64,6 @@ class lumbar.Page extends lumbar.View
 
     @children = {}
     @attach name, view for name, view of options
-
-    console.log "@el", @el
 
 
 class lumbar.Router extends Backbone.Router
