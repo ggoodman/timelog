@@ -57,4 +57,4 @@ class timelog.State extends lumbar.Model
       date: moment().clearTime()
       clock: moment()
 
-    #@interval = setInterval(@tick, 5000)
+    @interval = setInterval(@tick, 60 * 1000)

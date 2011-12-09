@@ -24,7 +24,6 @@ ul.refiner a.refine {
   bottom: 0;
   right: 0;
   width: 9px;
-  height: 0;
   margin: 4px;
   padding: 0;
   border-top: 9px solid transparent;
@@ -36,9 +35,7 @@ ul.refiner a.refine {
 
 #topbar {
   position: fixed;
-  width: 314px;
-  left: 50%;
-  margin-left: -160px;
+  width: 100%;
   height: 30px;
   top: 0;
   z-index: 20;
@@ -50,7 +47,7 @@ ul.refiner a.refine {
 #toolbar {
   position: relative;
   height: 48px;
-  width: 320px;
+  width: 100%;
 }
 #toolbar .prev, #toolbar .next {
   display: block;
@@ -76,7 +73,6 @@ ul.refiner a.refine {
 #toolbar .date {
   margin: 0 38px;
   padding: 4px;
-  width: 236px;
   font-size: 18px;
   line-height: 18px;
 }
@@ -122,19 +118,15 @@ body, html {
 }
 
 #pages {
-  width: 320px;
+  width: 100%;
   position: absolute;
   top: 36px;
-  left: 50%;
-  margin-left: -160px;
   background-color: white;
 }
 #pages .page {
-  width: 320px;
+  width: 100%;
   position: absolute;
   top: 0px;
-  left: 50%;
-  margin-left: -160px;
 }
 
 #blocks {

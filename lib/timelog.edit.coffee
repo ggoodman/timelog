@@ -74,7 +74,7 @@ lumbar.router.registerPage /^(\d\d\d\d-\d\d-\d\d)(?:@(c\d+))$/, "edit", ->
           time.add("minutes", 6)
         
         defaultEnd = @model.get("end").clone()
-        defaultEnd = start.clone().add("hours", 1) unless @model.id
+        defaultEnd = start.clone().add("hours", 1) unless @model.id or start.diff(end, "hours", true) < 1
           
         $start.val(@model.get("start").format("HH:mm"))
         $end.val(defaultEnd.format("HH:mm"))

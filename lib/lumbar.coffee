@@ -9,26 +9,73 @@ window.lumbar =
   start: -> lumbar.root.render()
 
 class lumbar.View
-  fragment: "<div>"
+  @attachDefaults:
+    mountPoint: "@"
+    mountMethod: "html"
+    type: "one"
+
+  @attach: (name, options = {}) ->
+    @attachedViews ?= {}
+    @attachedViews[name] = _.defaults options, @attachDefaults
+
+  mountMethod: "html" # Replace contents with rendered template
+  renderEvents: "all" # Re-render on 'all' events
   template: ->
-    
-  attach: (mountPoint, childView) -> @children[mountPoint] = childView
-    
-  getViewModel: -> _.extend {}, @model?.viewModel()
-    
-  render: ->
-    @el.html CoffeeKup.render @template, @getViewModel()
-    
-    for mountPoint, childView of @children
-      $(mountPoint, @el).clear().append $(childView.render().el).contents()
-    
-    @trigger "rendered", @
-  
   initialize: ->
-    
-  constructor: ->
-    @children? or @children = {}
-    @el = $(@fragment)
+
+  setMountPoint: (@mountPoint) ->
+  setMountMethod: (@mountMethod) ->
+  
+  render: =>
+    @$ = $(CoffeeKup.render @template, @getViewModel())
+    if @mountPoint
+      $(@mountPoint)[@mountMethod](@$)
+      @emit "mounted"
+    @emit "rendered"
+    @renderAttachedViews()
+    @
+
+  renderAttachedView: (name, options) ->
+    # Check to see if the viewModel needs to be lazy-loaded
+    if options.createViewModel and not options.viewModel
+      throw new Error("createViewModel must be a function") unless _.isFunction(options.createViewModel)
+      options.viewModel = options.createViewModel.call(@)
+
+    throw new Error("Missing or invalid viewModel") unless options.viewModel instanceof lumbar.View
+
+    childView.setMountPoint if options.mountPoint is "@" then @$ else @$.find(options.mountPoint)
+    childView.setMountMethod options.mountMethod
+    childView.render()
+
+  renderAttachedViewList: (name, options) ->
+    if options.createIterator and not options.iterator
+      throw new Error("createIterator must be a function") unless _.isFunction(options.createIterator)
+      options.iterator = options.createIterator.call(@)
+
+    throw new Error("Missing or invalid iterator") unless _.isFunction(options.iterator)
+
+    self = @
+    options.iterator.call @, name, options, (viewModel) ->
+      self.renderAttachedView name, _.extend {}, options,
+        type: "one"
+        viewModel: viewModel
+
+  renderAttachedViews: ->
+    for name, options of @attachedViews
+      if options.type is "one" then @renderAttachedView(name, options)
+      else if options.type is "many" then @renderAttachedViewList(name, options)
+      else throw new Error("Invalid attachment type: #{options.type}")
+    @
+        
+
+  constructor: (options = {}) ->
+    @[key] = value for key, value of options when not @[key]
+
+    # Transfer over things set-up through constructor-level methods
+    @attachDefaults = @constructor.attachDefaults
+    @attach = @constructor.attach
+    @attachedViews = @constructor.attachedViews
+
     @initialize(arguments...)
 
 lumbar.root = new class extends lumbar.View
